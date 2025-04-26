@@ -13,18 +13,23 @@ int main(int argc, char* argv[])
     }
 
     string target = argv[1];
-    int num_threads = 4; // default
+    int num_threads = 4;
 
     if (argc == 3) {
         num_threads = atoi(argv[2]);
     }
 
     omp_set_num_threads(num_threads);
+    int threads_used = 1;
 
-    // Start with base guess as 'aaaa', this is only a placeholder
+#pragma omp parallel
+    {
+#pragma omp single
+        threads_used = omp_get_num_threads();
+    }
+
     string guess(4, 'a');
     bool found = false;
-
 
     timeval begin, end;
     gettimeofday(&begin, 0);
@@ -60,7 +65,7 @@ int main(int argc, char* argv[])
     gettimeofday(&end, 0);
     double elapsed = (end.tv_sec - begin.tv_sec) * 1000.0;
     elapsed += (end.tv_usec - begin.tv_usec) / 1000.0;
-    cout << "Threads: " << omp_get_num_threads() << " Time: " << elapsed << "ms " << endl;
+    cout << "Threads: " << threads_used << " Time: " << elapsed << "ms " << endl;
 
     return 0;
 }
